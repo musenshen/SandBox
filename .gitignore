@@ -1,2 +1,5 @@
 .gitignore
 cocos2d/
+proj.win32/SandBox.sdf
+proj.win32/SandBox.v12.suo
+proj.win32/SandBox.opensdf

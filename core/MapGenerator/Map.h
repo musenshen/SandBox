@@ -28,8 +28,6 @@ public:
 	bool LoadFile(string file_name);
 	bool WriteFile(string file_name);
 
-	vector<edge *> GetEdges();
-	vector<corner *> GetCorners();
 	vector<center *> GetCenters();
 
 private:
@@ -40,11 +38,9 @@ private:
 	string m_seed;
 
 	vector<del::vertex> points;
+    vector<center *>    centers;
 
 	map<double, map<double, center *> > pos_cen_map;
-	vector<edge *> edges;
-	vector<corner *> corners;
-	vector<center *> centers;
 
 	static const vector<vector<Biome::Type> > elevation_moisture_matrix;
 	static vector<vector<Biome::Type> > MakeBiomeMatrix();
@@ -64,12 +60,8 @@ private:
 	void GeneratePoints();
 	void Triangulate(vector<del::vertex> puntos);
 	void FinishInfo();
-	void AddCenter(center * c);
 	center * GetCenter(Vec2 position);
-	void OrderPoints(vector<corner *> &corners);
 
-	vector<corner *> GetLandCorners();
-	vector<corner *> GetLakeCorners();
 	void LloydRelaxation();
 	static unsigned int HashString(string seed);
 	string CreateSeed(int length);

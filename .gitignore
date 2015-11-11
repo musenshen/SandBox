@@ -7,3 +7,10 @@ proj.win32/SandBox.v12.suo
 proj.win32/SandBox.opensdf
 core/MapGenerator/proj.win32/Debug.win32/
 core/MapGenerator/proj.win32/Release.win32/
+proj.ios_mac/SandBox.xcodeproj/project.xcworkspace/xcuserdata/musenshen.xcuserdatad/UserInterfaceState.xcuserstate
+
+proj.ios_mac/SandBox.xcodeproj/xcuserdata/musenshen.xcuserdatad/xcschemes/SandBox-desktop.xcscheme
+
+proj.ios_mac/SandBox.xcodeproj/xcuserdata/musenshen.xcuserdatad/xcschemes/SandBox-mobile.xcscheme
+
+proj.ios_mac/SandBox.xcodeproj/xcuserdata/musenshen.xcuserdatad/xcschemes/xcschememanagement.plist

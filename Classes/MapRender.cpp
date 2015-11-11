@@ -8,42 +8,42 @@ const int HEIGHT = 4096;
 
 
 /*
-struct Biome{
+ struct Terrain{
 	enum Type{
-		Snow,
-		Tundra,
-		Mountain,
-		Taiga,
-		Shrubland,
-		TemperateDesert,
-		TemperateRainForest,
-		TemperateDeciduousForest,
-		Grassland,
-		TropicalRainForest,
-		TropicalSeasonalForest,
-		SubtropicalDesert,
-		Ocean,
-		Lake,
-		Beach,
+        Snow,
+        Plain,
+        Grassland,
+        Swamp,
+        Mountain,
+        Desert,
+        Ocean,
+        Lake,
+        Beach,
 
-		Size,
-		None
+        Size,
+        None
 	};
-};
+ };
+ 
+ struct Biome{
+ enum Type{
+        Tree,
+        Bush,
+        Bridge,
+        House,
+
+        Size,
+        None
+ };
+ };
 */
-const Rect BIOME_TEXTURE[] = {
+const Rect TERRAIN_TEXTURE[] = {
 	Rect(16, 336, 32, 32),			// Snow
-	Rect(208, 144, 32, 32),			// Tundra
-	Rect(144, 144, 32, 32),			// Mountain
-	Rect(80, 144, 32, 32),			// Taiga
-	Rect(272, 240, 32, 32),			// Shrubland
-	Rect(16, 144, 32, 32),			// TemperateDesert
-	Rect(80, 240, 32, 32),			// TemperateRainForest
-	Rect(272, 48, 32, 32),			// TemperateDeciduousForest
+	Rect(208, 144, 32, 32),			// Plain
 	Rect(208, 48, 32, 32),			// Grassland
-	Rect(80, 48, 32, 32),			// TropicalRainForest
-	Rect(80, 240, 32, 32),			// TropicalSeasonalForest
-	Rect(208, 240, 32, 32),			// SubtropicalDesert
+	Rect(272, 144, 32, 32),			// Swamp
+	Rect(144, 144, 32, 32),			// Mountain
+	Rect(208, 240, 32, 32),			// Desert
 	Rect(336, 144, 32, 32),			// Ocean
 	Rect(336, 48, 32, 32),			// Lake
 	Rect(16, 240, 32, 32)			// Beach
@@ -52,9 +52,7 @@ const Rect BIOME_TEXTURE[] = {
 
 static long  GetCocos2dTime()
 {
-	struct  timeval tv;
-	cocos2d::gettimeofday(&tv, NULL);
-	return  tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    return cocos2d::utils::getTimeInMilliseconds();
 }
 
 
@@ -92,25 +90,23 @@ bool MapRender::initMapNode()
 
 	CCLOG("Map Generate: ");
 
-	maps::Map mapa(WIDTH, HEIGHT, 10, "");
-	mapa.GenerateTest();
+	maps::Map* mapa = new maps::Map(WIDTH, HEIGHT, 10, "");
+	mapa->GenerateTest();
 
 	now = GetCocos2dTime();
 	CCLOG("%ld ms.", now - pre);
 	pre = now;
 
-	vector<maps::edge *> edges = mapa.GetEdges();
-	vector<maps::corner *> corners = mapa.GetCorners();
-	vector<maps::center *> centers = mapa.GetCenters();
+	vector<maps::center *> centers = mapa->GetCenters();
 
 	size_t len = WIDTH / TILE_SIZE;
 	vector<maps::center *>::iterator center_iter = centers.begin();
 	for (; center_iter != centers.end(); center_iter++)
 	{
-		Sprite* tile = reusedTileWithRect(BIOME_TEXTURE[(*center_iter)->biome]);
+		Sprite* tile = reusedTileWithRect(TERRAIN_TEXTURE[(*center_iter)->_terrain]);
 
-		size_t index = (*center_iter)->index;
-		tile->setPosition(cocos2d::Vec2((*center_iter)->position.x, (*center_iter)->position.y));
+		size_t index = (*center_iter)->_index;
+		tile->setPosition(cocos2d::Vec2((*center_iter)->_position.x, (*center_iter)->_position.y));
 		tile->setAnchorPoint(cocos2d::Vec2::ZERO);
 
 		this->insertQuadFromSprite(tile, index);

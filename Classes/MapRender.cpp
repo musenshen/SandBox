@@ -132,16 +132,16 @@ bool MapRender::initRenderTexture()
 
 bool MapRender::doRenderTexture(maps::Map* mapa, const std::string& fileImage)
 {
-	vector<maps::center *> centers = mapa->GetCenters();
+	vector<maps::Center *> centers = mapa->GetCenters();
 	int perWidth = WIDTH / MAX_TEX_X;
 	int perHeight = HEIGHT / MAX_TEX_Y;
 
-	vector<maps::center *> unitCenters[MAX_TEX_X][MAX_TEX_Y];
-	vector<maps::center *>::iterator center_iter = centers.begin();
+	vector<maps::Center *> unitCenters[MAX_TEX_X][MAX_TEX_Y];
+	vector<maps::Center *>::iterator center_iter = centers.begin();
 	for (; center_iter != centers.end(); center_iter++)
 	{
-		int x = (*center_iter)->_row * TILE_SIZE / perWidth;
-		int y = (*center_iter)->_col * TILE_SIZE / perHeight;
+		int x = (*center_iter)->getRow() * maps::TILE_SIZE / perWidth;
+		int y = (*center_iter)->getCol() * maps::TILE_SIZE / perHeight;
 		unitCenters[x][y].push_back(*center_iter);
 	}
 
@@ -153,14 +153,13 @@ bool MapRender::doRenderTexture(maps::Map* mapa, const std::string& fileImage)
 			// begin drawing to the render texture
 			render->begin();
 
-			vector<maps::center *> curCenters = unitCenters[i][j];
+			vector<maps::Center *> curCenters = unitCenters[i][j];
 			center_iter = curCenters.begin();
 			for (; center_iter != curCenters.end(); center_iter++)
 			{
-				Sprite* tile = Sprite::create(fileImage, TERRAIN_TEXTURE[(*center_iter)->_terrain]);
+				Sprite* tile = Sprite::create(fileImage, TERRAIN_TEXTURE[(int)(*center_iter)->getTerrain()]);
 
-				size_t index = (*center_iter)->_index;
-				tile->setPosition(cocos2d::Vec2((*center_iter)->_position.x - i * perWidth, (*center_iter)->_position.y - j * perHeight));
+				tile->setPosition(cocos2d::Vec2((*center_iter)->getPosition().x - i * perWidth, (*center_iter)->getPosition().y - j * perHeight));
 				tile->setAnchorPoint(cocos2d::Vec2::ZERO);
 
 				tile->visit();

@@ -5,23 +5,124 @@
 
 namespace maps {
 
-bool center::IsInsideBoundingBox(int width, int height){
-	if(_position.x < 0 || _position.x >= width || _position.y < 0 || _position.y >= height)
-		return false;
-
-	return true;
+Center::Center()
+:_index(0), _row(0), _col(0), _position(0, 0), _border(false), _terrain(Terrain::None), _biome(Biome::None), _elevation(0.0) 
+{
 }
 
-bool center::GoesBefore(Vec2 p_a, Vec2 p_b){
-	if((p_a - _position).x >= 0 && (p_b - _position).x < 0)
-		return true;
+Center::Center(unsigned int i, unsigned int r, unsigned int c, Vec2 p)
+: _index(i), _row(r), _col(c), _position(p), _border(false), _terrain(Terrain::None), _biome(Biome::None), _elevation(0.0) 
+{
+}
 
-	if(p_a.x == 0 && p_b.x == 0)
-		return p_a.y < p_b.y;
+Center::~Center()
+{
 
-	Vec2 ca(_position, p_a);
-	Vec2 cb(_position, p_b);
-	return ca.CrossProduct(cb) > 0;
+}
+
+void Center::setIndex(unsigned int i)
+{
+	_index = i;
+}
+
+unsigned int Center::getIndex()
+{
+	return _index;
+}
+
+void Center::setRow(unsigned int r)
+{
+	_row = r;
+}
+
+unsigned int Center::getRow()
+{
+	return _row;
+}
+
+void Center::setCol(unsigned int c)
+{
+	_col = c;
+}
+
+unsigned int Center::getCol()
+{
+	return _col;
+}
+
+void Center::setPosition(const Vec2 &position)
+{
+	_position = position;
+}
+
+const Vec2& Center::getPosition() const
+{
+	return _position;
+}
+
+void Center::setBorder(bool border)
+{
+	_border = border;
+}
+
+bool Center::isBorder()
+{
+	return _border;
+}
+
+void Center::setTerrain(Terrain terrain)
+{
+	_terrain = terrain;
+}
+
+Terrain Center::getTerrain()
+{
+	return _terrain;
+}
+
+void Center::setTerrainIndex(unsigned int i)
+{
+	_terrainIndex = i;
+}
+
+unsigned int Center::getTerrainIndex()
+{
+	return _terrainIndex;
+}
+
+void Center::setBiome(Biome biome)
+{
+	_biome = biome;
+}
+
+maps::Biome Center::getBiome()
+{
+	return _biome;
+}
+
+void Center::setBiomeIndex(unsigned int i)
+{
+	_biomeIndex = i;
+}
+
+unsigned int Center::getBiomeIndex()
+{
+	return _biomeIndex;
+}
+
+void Center::setElevation(double elevation)
+{
+	_elevation = elevation;
+}
+
+double Center::getElevation()
+{
+	return _elevation;
+}
+
+vector<Center*> Center::getCenters()
+{
+	return _centers;
 }
 
 }

@@ -40,8 +40,8 @@ void Map::GenerateTest()
 	{
 		for (size_t i = 0; i < lenX; i++)
 		{
-			center* c = new center(index++, i, j, Vec2(i * TILE_SIZE, j*TILE_SIZE));
-			c->_terrain = (Terrain::Type)(rand() % Terrain::Size);
+			Center* c = new Center(index++, i, j, Vec2(i * TILE_SIZE, j*TILE_SIZE));
+			c->setTerrain((Terrain)(rand() % (int)Terrain::Size));
 			centers.push_back(c);
 		}
 	}
@@ -265,10 +265,10 @@ void Map::Triangulate(vector<del::vertex> puntos){
 }
 
 
-center * Map::GetCenter(Vec2 position){
-	map<double, map<double, center *> >::const_iterator it = pos_cen_map.find(position.x);
+Center * Map::GetCenter(Vec2 position){
+	map<double, map<double, Center *> >::const_iterator it = pos_cen_map.find(position.x);
 	if(it != pos_cen_map.end()){
-		map<double, center *>::const_iterator it2 = it->second.find(position.y);
+		map<double, Center *>::const_iterator it2 = it->second.find(position.y);
 		if(it2 != it->second.end()){
 			return it2->second;
 		}
@@ -285,7 +285,7 @@ void Map::LloydRelaxation(){
 	
 }
 
-vector<center *> Map::GetCenters(){
+vector<Center *> Map::GetCenters(){
 	return centers;
 }
 

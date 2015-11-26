@@ -3,8 +3,8 @@
 
 USING_NS_CC;
 
-const int WIDTH = 4096;
-const int HEIGHT = 4096;
+const int WIDTH = 12288;
+const int HEIGHT = 12288;
 
 
 /*
@@ -58,32 +58,40 @@ static long  GetCocos2dTime()
 
 MapRender* MapRender::createMapNode(const std::string& fileImage)
 {
-	MapRender *batchNode = new (std::nothrow) MapRender();
-	if (batchNode != nullptr)
+	MapRender *node = new (std::nothrow) MapRender();
+	if (node != nullptr)
 	{
-		batchNode->initWithFile(fileImage);
-		batchNode->initMapNode();
-		batchNode->autorelease();
+		node->init();
+		node->initMapNode(fileImage);
+		node->autorelease();
+		node->retain();
 	}
 
-	return batchNode;
+	return node;
 }
 
 MapRender::MapRender()
-: _reusedTile(nullptr)
 {
 
 }
 
 MapRender::~MapRender()
 {
-
+	for (size_t i = 0; i < MAX_TEX_X; i++)
+	{
+		for (size_t j = 0; j < MAX_TEX_Y; j++)
+		{
+			RenderTexture* tex = _renderTexture[i][j];
+			if (tex) tex->release();
+		}
+	}
 }
 
 // on "init" you need to initialize your instance
-bool MapRender::initMapNode()
+bool MapRender::initMapNode(const std::string& fileImage)
 {
-	this->setContentSize(Size(WIDTH, HEIGHT));
+	setContentSize(Size(WIDTH, HEIGHT));
+	initRenderTexture();
 
 	long pre = GetCocos2dTime();
 	long now = pre;
@@ -97,44 +105,72 @@ bool MapRender::initMapNode()
 	CCLOG("%ld ms.", now - pre);
 	pre = now;
 
-	vector<maps::center *> centers = mapa->GetCenters();
-
-	size_t len = WIDTH / TILE_SIZE;
-	vector<maps::center *>::iterator center_iter = centers.begin();
-	for (; center_iter != centers.end(); center_iter++)
-	{
-		Sprite* tile = reusedTileWithRect(TERRAIN_TEXTURE[(*center_iter)->_terrain]);
-
-		size_t index = (*center_iter)->_index;
-		tile->setPosition(cocos2d::Vec2((*center_iter)->_position.x, (*center_iter)->_position.y));
-		tile->setAnchorPoint(cocos2d::Vec2::ZERO);
-
-		this->insertQuadFromSprite(tile, index);
-	}
+	doRenderTexture(mapa, fileImage);
 
     return true;
 }
 
-cocos2d::Sprite* MapRender::reusedTileWithRect(cocos2d::Rect rect)
+bool MapRender::initRenderTexture()
 {
-	if (!_reusedTile)
+	// create a render texture, this is what we are going to draw into
+	int perWidth = WIDTH / MAX_TEX_X;
+	int perHeight = HEIGHT / MAX_TEX_Y;
+	for (size_t i = 0; i < MAX_TEX_X; i++)
 	{
-		_reusedTile = Sprite::createWithTexture(_textureAtlas->getTexture(), rect);
-		_reusedTile->setBatchNode(this);
-		_reusedTile->retain();
+		for (size_t j = 0; j < MAX_TEX_Y; j++)
+		{
+			RenderTexture* renderTexture = RenderTexture::create(perWidth, perHeight, Texture2D::PixelFormat::RGBA8888);
+			renderTexture->retain();
+			renderTexture->setPosition(cocos2d::Vec2(perWidth / 2 + i * perWidth, perHeight / 2 + j * perHeight));
+
+			this->addChild(renderTexture);
+			_renderTexture[i][j] = renderTexture;
+		}
 	}
-	else
+	return true;
+}
+
+bool MapRender::doRenderTexture(maps::Map* mapa, const std::string& fileImage)
+{
+	vector<maps::center *> centers = mapa->GetCenters();
+	int perWidth = WIDTH / MAX_TEX_X;
+	int perHeight = HEIGHT / MAX_TEX_Y;
+
+	vector<maps::center *> unitCenters[MAX_TEX_X][MAX_TEX_Y];
+	vector<maps::center *>::iterator center_iter = centers.begin();
+	for (; center_iter != centers.end(); center_iter++)
 	{
-		// FIXME: HACK: Needed because if "batch node" is nil,
-		// then the Sprite'squad will be reset
-		_reusedTile->setBatchNode(nullptr);
-
-		// Re-init the sprite
-		_reusedTile->setTextureRect(rect, false, rect.size);
-
-		// restore the batch node
-		_reusedTile->setBatchNode(this);
+		int x = (*center_iter)->_row * TILE_SIZE / perWidth;
+		int y = (*center_iter)->_col * TILE_SIZE / perHeight;
+		unitCenters[x][y].push_back(*center_iter);
 	}
 
-	return _reusedTile;
+	for (size_t i = 0; i < MAX_TEX_X; i++)
+	{
+		for (size_t j = 0; j < MAX_TEX_Y; j++)
+		{
+			RenderTexture* render = _renderTexture[i][j];
+			// begin drawing to the render texture
+			render->begin();
+
+			vector<maps::center *> curCenters = unitCenters[i][j];
+			center_iter = curCenters.begin();
+			for (; center_iter != curCenters.end(); center_iter++)
+			{
+				Sprite* tile = Sprite::create(fileImage, TERRAIN_TEXTURE[(*center_iter)->_terrain]);
+
+				size_t index = (*center_iter)->_index;
+				tile->setPosition(cocos2d::Vec2((*center_iter)->_position.x - i * perWidth, (*center_iter)->_position.y - j * perHeight));
+				tile->setAnchorPoint(cocos2d::Vec2::ZERO);
+
+				tile->visit();
+			}
+
+
+			// finish drawing and return context back to the screen
+			render->end();
+		}
+	}
+
+	return true;
 }

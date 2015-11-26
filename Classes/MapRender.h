@@ -3,7 +3,14 @@
 
 #include "cocos2d.h"
 
-class MapRender : public cocos2d::SpriteBatchNode
+#define  MAX_TEX_X 3
+#define  MAX_TEX_Y 3
+
+namespace maps {
+	class Map;
+}
+
+class MapRender : public cocos2d::Node
 {
 public:
 	static MapRender* createMapNode(const std::string& fileImage);
@@ -13,14 +20,14 @@ public:
 	virtual ~MapRender();
 
 public:
-	virtual bool initMapNode();
+	virtual bool initMapNode(const std::string& fileImage);
 
 protected:
-	cocos2d::Sprite* reusedTileWithRect(cocos2d::Rect rect);
+	bool initRenderTexture();
+	bool doRenderTexture(maps::Map* mapa, const std::string& fileImage);
 
 private:
-	//! used for optimization
-	cocos2d::Sprite *_reusedTile;
+	cocos2d::RenderTexture* _renderTexture[MAX_TEX_X][MAX_TEX_Y];
 };
 
 #endif // __SANDBOX_MAPRENDER_H__
